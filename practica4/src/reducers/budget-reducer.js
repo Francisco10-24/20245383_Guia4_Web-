@@ -16,7 +16,7 @@ export const budgetReducer = (state, action) => {
             return {...state, modal:true}
 
         case "close-modal":
-            return {...state, modal:false}
+            return {...state, modal:false, editingId: "" }
         
         case "add-expense": 
             return  { 
@@ -38,7 +38,14 @@ export const budgetReducer = (state, action) => {
                 ...state,
                 editingId: action.payload.id,
                 modal:true
-            }    
+            }  
+        case "update-expense":
+            return {
+                ...state,
+                expenses: state.expenses.map(expense => expense.id === action.payload.expense.id ? action.payload.expense : expense),
+                modal: false,
+                editingId: ""
+            }  
         default:
             return state;
     }

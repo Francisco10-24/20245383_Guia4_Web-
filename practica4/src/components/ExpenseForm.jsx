@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react' 
+import React, { useContext, useState,useEffect } from 'react' 
 import { categories } from '../data/categories' 
 import DatePicker from 'react-date-picker' 
 import 'react-date-picker/dist/DatePicker.css' 
@@ -17,8 +17,17 @@ export const ExpenseForm = () => {
  
       const [error, setError] = useState('') 
       const dispatch = useContext(BudgetDispatchContext) 
-      // const state = useContext(BudgetStateContext) // Se mantiene en comentario para evitar advertencia de variable no usada
- 
+      const state = useContext(BudgetStateContext) // Se mantiene en comentario para evitar advertencia de variable no usada
+      
+      useEffect(() => {
+    if (state.editingId) {
+        // Buscamos el gasto que coincide con el ID que queremos editar
+        const editingExpense = state.expenses.filter(currentExpense => currentExpense.id === state.editingId)[0]
+    
+        setExpense(editingExpense)
+    }
+    }, [state.editingId])
+      
       const handleChange = (e) => { 
         const { name, value } = e.target; 
         const isAmountField = ["amount"].includes(name); // ["amount"] es un array con un solo valor, y .includes(name) devuelve true si name es "amount". 
@@ -45,12 +54,17 @@ export const ExpenseForm = () => {
     if(Object.values(expense).includes('')) { 
       setError('Todos los Campos son Obligatorios') 
       return 
-    } 
+    }
+    
+    if(state.editingId) {
+        dispatch({ type: 'update-expense', payload: { expense: { id: state.editingId, ...expense } } })
+    }
+    else {
+        dispatch({type: 'add-expense', payload: {expense}})
+    }
  
     
-    dispatch({type: 'add-expense', payload: {expense}}) 
-      
-      // Reiniciar el state/form 
+      // Reiniciar el form
     setExpense({ 
       expenseName: "", 
       amount: 0, 
@@ -64,7 +78,7 @@ export const ExpenseForm = () => {
     return ( 
         <form className=" space-y-5" onSubmit={handleSubmit}> 
             <legend className="uppercase text-center text-2xl font-black border-b-4 border-blue-500 py-2"> 
-                Nuevo gasto 
+                {state.editingId ? 'Guardar Cambios' : 'Nuevo Gasto'}  
             </legend> 
  
             {error && <ErrorMessage>{error}</ErrorMessage>} 
@@ -135,7 +149,7 @@ export const ExpenseForm = () => {
             <input 
                 type="submit" 
                 className=" bg-blue-600 cursor-pointer w-full p-2 text-white uppercase font-bold rounded-lg" 
-                value="Registrar gasto" 
+                value={state.editingId ? 'Guardar Cambios' : 'Registrar Gasto'}
             /> 
         </form> 
     ) 
