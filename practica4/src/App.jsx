@@ -1,4 +1,4 @@
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 import { BudgetForm } from "./components/BudgetForm"
 import { BudgetStateContext } from './context/BudgetContext' 
 import { BudgetTracker } from './components/BudgetTracker'
@@ -9,7 +9,14 @@ import { FilterByCategory } from "./components/FilterByCategory"
 function App() { 
 
     const state = useContext(BudgetStateContext)
-    const isValidBudget = state.budget > 1
+    const isValidBudget = state.budget > 0
+    useEffect(() => {
+        localStorage.setItem('budget', state.budget.toString())
+    }, [state.budget])
+
+    useEffect(() => {
+        localStorage.setItem('expenses', JSON.stringify(state.expenses))
+    }, [state.expenses]) 
     return ( 
         <> 
             <header className="bg-blue-600 py-8 max-h-72"> 

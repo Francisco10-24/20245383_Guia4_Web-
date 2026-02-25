@@ -1,9 +1,20 @@
 import { act } from "react"
 
+const initialBudget = () => {
+    const localStorageBudget = localStorage.getItem('budget')
+    return localStorageBudget ? +localStorageBudget : 0 
+}
+
+const initialExpenses = () => {
+    const localStorageExpenses = localStorage.getItem('expenses')
+    return localStorageExpenses ? JSON.parse(localStorageExpenses) : [] 
+}
 export const initialState={
-    budget:0,
+    budget: initialBudget(),
     modal: false,
-    expenses: []
+    expenses: initialExpenses(),
+    editingId: "",
+    currentCategory: ""
 }
 
 export const budgetReducer = (state, action) => {
@@ -45,7 +56,22 @@ export const budgetReducer = (state, action) => {
                 expenses: state.expenses.map(expense => expense.id === action.payload.expense.id ? action.payload.expense : expense),
                 modal: false,
                 editingId: ""
-            }  
+            }
+        case "add-filter-category":
+            return{
+                ...state,
+                currentCategory: action.payload.id
+            }
+        case "reset-app":
+            localStorage.removeItem('budget')
+            localStorage.removeItem('expenses')
+        return {
+                ...state,
+                budget: 0,
+                expenses: [],
+                editingId: "",
+                currentCategory: ""
+            }
         default:
             return state;
     }

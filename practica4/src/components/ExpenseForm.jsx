@@ -55,6 +55,14 @@ export const ExpenseForm = () => {
       setError('Todos los Campos son Obligatorios') 
       return 
     }
+
+    const previousAmount = state.expenses
+        .filter(exp => exp.id !== state.editingId)
+        .reduce((total, exp) => exp.amount + total, 0);
+    if ((previousAmount + expense.amount) > state.budget) {
+        setError('Ese gasto se sale de tu presupuesto');
+        return;
+    }
     
     if(state.editingId) {
         dispatch({ type: 'update-expense', payload: { expense: { id: state.editingId, ...expense } } })
@@ -107,7 +115,7 @@ export const ExpenseForm = () => {
                     id="amount" 
                     placeholder="Añade la Cantidad del gasto: ej. 300" 
                     className=" bg-slate-100 p-2" 
-                    name="amount" // se usa para identificar el campo en el formulario 
+                    name="amount" 
                     value={expense.amount} 
                     onChange={handleChange} 
                      /> 
@@ -124,7 +132,7 @@ export const ExpenseForm = () => {
                     value={expense.category} 
                     onChange={handleChange} 
                 > 
-                    {/* Se agrega value="" para evitar el error de componente no controlado en consola */}
+                    
                     <option value=""> -- Seleccione --</option> 
                     {categories.map((category) => ( 
                         <option 
